@@ -1,15 +1,14 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
 
     defaultConfig {
         applicationId "com.example.bradcampbell"
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "com.example.bradcampbell.TestAppAndroidJUnitRunner"
@@ -50,16 +49,18 @@ dependencies {
 
     // ButterKnife
     compile deps.butterknife
+    annotationProcessor deps.butterknifecompiler
 
     // Dagger
     compile deps.dagger
-    apt deps.daggercompiler
-    provided deps.glassfishannotations
+    annotationProcessor deps.daggercompiler
+    androidTestAnnotationProcessor deps.daggercompiler
 
     // AutoValue / PaperParcel
-    compile deps.autovalue
+    provided deps.autovalue
+    annotationProcessor deps.autovalue
     compile deps.paperparcel
-    apt deps.paperparcelcompiler
+    annotationProcessor deps.paperparcelcompiler
 
     // Unit
     testCompile deps.junit
@@ -67,27 +68,12 @@ dependencies {
     testCompile deps.mockito
 
     // Integration
+
     androidTestCompile deps.testrunner
     androidTestCompile deps.testrules
     androidTestCompile deps.espresso
     androidTestCompile deps.mockito
     androidTestCompile deps.dexmaker
     androidTestCompile deps.dexmakermockito
-    androidTestCompile deps.spoon
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.stanfy.spoon:spoon-gradle-plugin:1.0.2'
-    }
-}
-
-apply plugin: 'spoon'
-
-spoon {
-    debug = true
-}

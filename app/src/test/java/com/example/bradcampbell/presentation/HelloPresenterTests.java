@@ -1,53 +1,50 @@
 package com.example.bradcampbell.presentation;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
-import com.example.bradcampbell.BuildConfig;
-import com.example.bradcampbell.TestApp;
 import com.example.bradcampbell.domain.HelloEntity;
-import com.example.bradcampbell.domain.HelloModel;
+import com.example.bradcampbell.domain.HelloInteractor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.annotation.Config;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 import rx.Observable;
 import rx.schedulers.TestScheduler;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class,
-        application = TestApp.class,
-        sdk = 21)
+@RunWith(RobolectricTestRunner.class)
 public class HelloPresenterTests {
-  private HelloModel mockModel;
-  private HelloView mockView;
+  @Mock HelloInteractor interactor;
+  @Mock HelloView view;
+
+  private HelloPresenter helloPresenter;
 
   @Before public void setup() {
-    mockModel = mock(HelloModel.class);
-    mockView = mock(HelloView.class);
+    MockitoAnnotations.initMocks(this);
+
+    helloPresenter = new HelloPresenter(interactor);
   }
 
   @Test public void testLoadingIsCalledCorrectly() {
     TestScheduler testScheduler = new TestScheduler();
     Observable<HelloEntity> result = just(HelloEntity.create(0, 0)).subscribeOn(testScheduler);
-    when(mockModel.value()).thenReturn(result);
+    when(interactor.value()).thenReturn(result);
 
-    HelloPresenter presenter = new HelloPresenter(mockModel);
-    presenter.setView(mockView);
+    helloPresenter.setView(view);
 
-    verify(mockView, times(1)).showLoading();
-    verify(mockView, never()).hideLoading();
-    verify(mockView, never()).display(anyString());
+    verify(view, times(1)).showLoading();
+    verify(view, never()).hideLoading();
+    verify(view, never()).display(anyString());
 
     testScheduler.triggerActions();
 
-    verify(mockView, times(1)).display("0");
-    verify(mockView, times(1)).hideLoading();
+    verify(view, times(1)).display("0");
+    verify(view, times(1)).hideLoading();
   }
 }

@@ -15,42 +15,26 @@ import static org.mockito.Mockito.when;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
-import com.example.bradcampbell.AppComponent;
-import com.example.bradcampbell.BuildConfig;
-import com.example.bradcampbell.DaggerAppComponent;
-import com.example.bradcampbell.MockAppModule;
-import com.example.bradcampbell.TestApp;
 import com.example.bradcampbell.domain.HelloEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
+import org.robolectric.RobolectricTestRunner;
 import rx.observers.TestSubscriber;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class,
-        application = TestApp.class,
-        sdk = 21)
+@RunWith(RobolectricTestRunner.class)
 public class HelloDiskCacheTests {
+    @Mock SharedPreferences prefs;
+
     private HelloDiskCache cache;
-    private SharedPreferences prefs;
 
     @Before public void setup() {
-        TestApp app = (TestApp) RuntimeEnvironment.application;
-
-        MockAppModule mockAppModule = new MockAppModule(app);
-        prefs = mock(SharedPreferences.class);
-        mockAppModule.setOverrideSharedPrefs(prefs);
-
-        AppComponent appComponent = DaggerAppComponent.builder()
-                .appModule(mockAppModule)
-                .build();
-
-        cache = appComponent.getHelloDiskCache();
+        MockitoAnnotations.initMocks(this);
+        cache = new HelloDiskCache(prefs);
     }
 
     @Test public void testEmptyCache() {
@@ -82,14 +66,10 @@ public class HelloDiskCacheTests {
         when(prefs.edit()).thenReturn(editorMock);
 
         class IncrementCountAnswer implements Answer {
-            int count = 0;
+            private int count = 0;
             @Override public Object answer(InvocationOnMock invocation) throws Throwable {
                 count++;
                 return TRUE;
-            }
-
-            public int getCount() {
-                return count;
             }
         }
 
@@ -108,7 +88,7 @@ public class HelloDiskCacheTests {
         verify(editorMock).putInt(KEY_DATA, 1);
         verify(editorMock).putLong(KEY_TIMESTAMP, 2L);
 
-        assertEquals(1, incrementCount.getCount());
+        assertEquals(1, incrementCount.count);
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -118,14 +98,10 @@ public class HelloDiskCacheTests {
         when(editorMock.remove(any(String.class))).thenReturn(editorMock);
 
         class IncrementCountAnswer implements Answer {
-            int count = 0;
+            private int count = 0;
             @Override public Object answer(InvocationOnMock invocation) throws Throwable {
                 count++;
                 return TRUE;
-            }
-
-            public int getCount() {
-                return count;
             }
         }
         IncrementCountAnswer incrementCount = new IncrementCountAnswer();
@@ -137,6 +113,6 @@ public class HelloDiskCacheTests {
         verify(editorMock).remove(KEY_DATA);
         verify(editorMock).remove(KEY_TIMESTAMP);
 
-        assertEquals(1, incrementCount.getCount());
+        assertEquals(1, incrementCount.count);
     }
 }

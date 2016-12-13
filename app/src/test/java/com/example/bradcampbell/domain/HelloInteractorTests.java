@@ -2,35 +2,29 @@ package com.example.bradcampbell.domain;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.example.bradcampbell.BuildConfig;
-import com.example.bradcampbell.TestApp;
 import com.example.bradcampbell.data.HelloDiskCache;
 import com.example.bradcampbell.data.HelloService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.annotation.Config;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class,
-        application = TestApp.class,
-        sdk = 21)
-public class HelloModelTests {
-  private HelloModel model;
-  private HelloService service;
-  private HelloDiskCache cache;
-  private Clock clock;
+@RunWith(RobolectricTestRunner.class)
+public class HelloInteractorTests {
+  @Mock HelloService service;
+  @Mock HelloDiskCache cache;
+  @Mock Clock clock;
+
+  private HelloInteractor interactor;
 
   @Before public void setup() {
-    service = mock(HelloService.class);
-    cache = mock(HelloDiskCache.class);
-    clock = mock(Clock.class);
+    MockitoAnnotations.initMocks(this);
 
     SchedulerProvider schedulerProvider = new SchedulerProvider() {
       @Override public <T> Observable.Transformer<T, T> applySchedulers() {
@@ -40,7 +34,7 @@ public class HelloModelTests {
 
     when(cache.saveEntity(any())).thenReturn(Observable.just(null));
 
-    model = new HelloModel(schedulerProvider, cache, service, clock);
+    interactor = new HelloInteractor(schedulerProvider, cache, service, clock);
   }
 
   @Test public void testHitsMemoryCache() {
@@ -52,7 +46,7 @@ public class HelloModelTests {
     when(clock.millis()).thenReturn(0L);
 
     TestSubscriber<HelloEntity> testSubscriberFirst = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberFirst);
+    interactor.value().subscribe(testSubscriberFirst);
     testSubscriberFirst.assertNoErrors();
     testSubscriberFirst.assertReceivedOnNext(singletonList(expectedResult));
 
@@ -60,7 +54,7 @@ public class HelloModelTests {
     when(service.getValue()).thenReturn(Observable.just(2));
 
     TestSubscriber<HelloEntity> testSubscriberSecond = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberSecond);
+    interactor.value().subscribe(testSubscriberSecond);
     testSubscriberSecond.assertNoErrors();
     testSubscriberSecond.assertReceivedOnNext(singletonList(expectedResult));
   }
@@ -73,16 +67,16 @@ public class HelloModelTests {
     when(clock.millis()).thenReturn(0L);
 
     TestSubscriber<HelloEntity> testSubscriberFirst = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberFirst);
+    interactor.value().subscribe(testSubscriberFirst);
     testSubscriberFirst.assertNoErrors();
     testSubscriberFirst.assertReceivedOnNext(singletonList(expectedResult));
 
-    model.clearMemoryCache();
+    interactor.clearMemoryCache();
     when(cache.getEntity()).thenReturn(Observable.just(expectedResult));
     when(service.getValue()).thenReturn(Observable.just(2));
 
     TestSubscriber<HelloEntity> testSubscriberSecond = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberSecond);
+    interactor.value().subscribe(testSubscriberSecond);
     testSubscriberSecond.assertNoErrors();
     testSubscriberSecond.assertReceivedOnNext(singletonList(expectedResult));
   }
@@ -94,13 +88,13 @@ public class HelloModelTests {
     when(clock.millis()).thenReturn(0L);
 
     TestSubscriber<HelloEntity> testSubscriberFirst = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberFirst);
+    interactor.value().subscribe(testSubscriberFirst);
     testSubscriberFirst.assertNoErrors();
     testSubscriberFirst.assertReceivedOnNext(singletonList(expectedResultFirst));
 
     when(clock.millis()).thenReturn(4999L);
     TestSubscriber<HelloEntity> testSubscriberSecond = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberSecond);
+    interactor.value().subscribe(testSubscriberSecond);
     testSubscriberSecond.assertNoErrors();
     testSubscriberSecond.assertReceivedOnNext(singletonList(expectedResultFirst));
 
@@ -108,7 +102,7 @@ public class HelloModelTests {
     when(service.getValue()).thenReturn(Observable.just(2));
 
     TestSubscriber<HelloEntity> testSubscriberThird = new TestSubscriber<>();
-    model.value().subscribe(testSubscriberThird);
+    interactor.value().subscribe(testSubscriberThird);
     testSubscriberThird.assertNoErrors();
     testSubscriberThird.assertReceivedOnNext(singletonList(HelloEntity.create(2, 5000L)));
   }

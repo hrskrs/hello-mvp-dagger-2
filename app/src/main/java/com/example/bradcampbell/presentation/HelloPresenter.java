@@ -1,6 +1,6 @@
 package com.example.bradcampbell.presentation;
 
-import com.example.bradcampbell.domain.HelloModel;
+import com.example.bradcampbell.domain.HelloInteractor;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
@@ -10,10 +10,10 @@ public class HelloPresenter implements Presenter<HelloView> {
   private Subscription subscription = Subscriptions.empty();
   private HelloView view;
 
-  private final HelloModel model;
+  private final HelloInteractor interactor;
 
-  @Inject HelloPresenter(HelloModel helloModel) {
-    this.model = helloModel;
+  @Inject HelloPresenter(HelloInteractor interactor) {
+    this.interactor = interactor;
   }
 
   @Override public void setView(HelloView view) {
@@ -27,7 +27,7 @@ public class HelloPresenter implements Presenter<HelloView> {
 
   public void refresh() {
     view.showLoading();
-    subscription = model.value().subscribe(
+    subscription = interactor.value().subscribe(
         helloEntity -> view.display("" + helloEntity.value()),
         err -> view.hideLoading(),
         view::hideLoading);
@@ -39,7 +39,7 @@ public class HelloPresenter implements Presenter<HelloView> {
    * pressing a button.
    */
   public void clearMemoryCache() {
-    model.clearMemoryCache();
+    interactor.clearMemoryCache();
   }
 
   /**
@@ -48,6 +48,6 @@ public class HelloPresenter implements Presenter<HelloView> {
    * pressing a button.
    */
   public void clearMemoryAndDiskCache() {
-      model.clearMemoryAndDiskCache();
+      interactor.clearMemoryAndDiskCache();
   }
 }

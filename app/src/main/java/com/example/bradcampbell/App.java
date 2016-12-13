@@ -2,26 +2,23 @@ package com.example.bradcampbell;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 
 public class App extends Application {
   private AppComponent component;
 
-  protected AppModule getApplicationModule() {
-    return new AppModule(this);
+  @VisibleForTesting
+  protected AppComponent createComponent() {
+    return DaggerAppComponent.builder()
+        .appModule(new AppModule(this))
+        .build();
   }
 
   public static AppComponent getAppComponent(Context context) {
     App app = (App) context.getApplicationContext();
     if (app.component == null) {
-      app.component = DaggerAppComponent.builder()
-          .appModule(app.getApplicationModule())
-          .build();
+      app.component = app.createComponent();
     }
     return app.component;
-  }
-
-  public static void clearAppComponent(Context context) {
-    App app = (App) context.getApplicationContext();
-    app.component = null;
   }
 }

@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This is faking a Retrofit service returning an observable
+ * This is faking a REST service returning an observable
  */
 public class HelloService {
   public Observable<Integer> getValue() {

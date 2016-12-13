@@ -3,10 +3,12 @@ package com.example.bradcampbell.data;
 import android.content.SharedPreferences;
 
 import com.example.bradcampbell.domain.HelloEntity;
+import javax.inject.Singleton;
 import rx.Observable;
 
 import javax.inject.Inject;
 
+@Singleton
 public class HelloDiskCache {
   static final int NO_VALUE = -1;
   static final String KEY_DATA = "value-xyz-data";
@@ -14,7 +16,7 @@ public class HelloDiskCache {
 
   private SharedPreferences prefs;
 
-  @Inject public HelloDiskCache(SharedPreferences sharedPreferences) {
+  @Inject HelloDiskCache(SharedPreferences sharedPreferences) {
     this.prefs = sharedPreferences;
   }
 

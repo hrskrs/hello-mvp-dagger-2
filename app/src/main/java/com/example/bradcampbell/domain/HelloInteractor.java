@@ -2,11 +2,14 @@ package com.example.bradcampbell.domain;
 
 import com.example.bradcampbell.data.HelloDiskCache;
 import com.example.bradcampbell.data.HelloService;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.ReplaySubject;
 
-public class HelloModel {
+@Singleton
+public class HelloInteractor {
   private static final long STALE_MS = 5 * 1000;
 
   private final SchedulerProvider schedulerProvider;
@@ -18,7 +21,10 @@ public class HelloModel {
   private ReplaySubject<HelloEntity> helloSubject;
   private Subscription helloSubscription;
 
-  public HelloModel(SchedulerProvider schedulerProvider, HelloDiskCache diskCache, HelloService networkService,
+  @Inject HelloInteractor(
+      SchedulerProvider schedulerProvider,
+      HelloDiskCache diskCache,
+      HelloService networkService,
       Clock clock) {
     this.schedulerProvider = schedulerProvider;
     this.diskCache = diskCache;

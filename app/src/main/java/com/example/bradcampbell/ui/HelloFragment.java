@@ -8,9 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.example.bradcampbell.App;
 import com.example.bradcampbell.R;
 import com.example.bradcampbell.presentation.HelloPresenter;
@@ -21,8 +22,10 @@ import javax.inject.Inject;
 public class HelloFragment extends Fragment implements HelloView {
   @Inject HelloPresenter presenter;
 
-  @Bind(R.id.text_view) TextView textView;
-  @Bind(R.id.loading) View loadingView;
+  @BindView(R.id.text_view) TextView textView;
+  @BindView(R.id.loading) View loadingView;
+
+  private Unbinder unbinder;
 
   @Override public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -37,13 +40,13 @@ public class HelloFragment extends Fragment implements HelloView {
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    ButterKnife.bind(this, view);
+    unbinder = ButterKnife.bind(this, view);
     presenter.setView(this);
   }
 
   @Override public void onDestroyView() {
     super.onDestroyView();
-    ButterKnife.unbind(this);
+    unbinder.unbind();
     presenter.setView(null);
   }
 
